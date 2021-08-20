@@ -1,12 +1,14 @@
 ## Interface: 90100
-## Title: Extended Merchant UI |cffffffffv0.0.1
+## Title: Extended Merchant UI
+## Version: |cffffffffv0.0.1
 ## Notes: Extends the merchant interface for easier browsing.
-## Author: Germbread(original author)、嚣张的扇贝(Refactoring and maintenance)
-## Version: 0.0.1
+## Notes-zhCN: 用于扩展商人界面的独立插件。
+## Author: Germbread、Rampant Scallop
 ## SavedVariables: EXTMERCHANT_DATA
 ## X-Email: germbread@gmail.com
 
 # main
 main\ExtMerchant.xml
 
-# main.lua
+
+main\close.lua
