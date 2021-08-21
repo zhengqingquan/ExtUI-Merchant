@@ -9,6 +9,14 @@ local ItemsPerSubpage = MERCHANT_ITEMS_PER_PAGE
 -- BUYBACK_ITEMS_PER_PAGE默认为12
 local BuyBackPerPage = BUYBACK_ITEMS_PER_PAGE
 
+
+-- 修复暴雪的bug
+-- 当你使用购买堆叠框体的时候切换标签会报错
+-- 因为尝试调用StackSplitFrameCancel_Click()，但这个函数似乎被删除了。
+function StackSplitFrameCancel_Click()
+    StackSplitCancelButton_OnClick()
+end
+
 --========================================
 -- Rearrange item slot positions
 -- 重新排列商品物品槽的位置。
@@ -18,7 +26,7 @@ local function ExtMerchant_UpdateSlotPositions()
     local vertSpacing= -16 -- 垂直间距
     local horizSpacing = 12 -- 水平间距
     local buy_slot -- 临时变量
-    
+
     -- 循环物品槽，调整物品槽的锚点和位置。
     -- 参考：
     -- https://wowpedia.fandom.com/wiki/API_Region_SetPoint
@@ -46,15 +54,8 @@ local function ExtMerchant_UpdateSlotPositions()
             end
         end
     end
-
-    MerchantFrameLootFilter:Show();
-    MerchantExtraCurrencyBg:Show()--金色边框
-    MerchantExtraCurrencyInset:Show()--背景颜色
-    MerchantMoneyInset:Show()
-    MerchantMoneyBg:Show()
-    MerchantMoneyFrame:Show()
-    MerchantToken1:Show()
 end
+
 
 --========================================
 -- Rearrange item slot positions
@@ -92,15 +93,8 @@ local function ExtMerchant_UpdateBuyBackSlotPositions()
             end
         end
     end
-
-    MerchantFrameLootFilter:Show();
-    MerchantExtraCurrencyBg:Show()--金色边框
-    MerchantExtraCurrencyInset:Show()--背景颜色
-    MerchantMoneyInset:Show()
-    MerchantMoneyBg:Show()
-    MerchantMoneyFrame:Show()
-    MerchantToken1:Show()
 end
+
 
 --========================================
 -- Initial load
@@ -124,140 +118,100 @@ local function ExtMerchant_OnLoad()
     end
 
 
-
-
-
-    -- 创建一个名为SetTab的标签
-    --命名只能是MerchantFrameTab3
-    CreateFrame("Button", "MerchantFrameTab3", MerchantFrame, "CharacterFrameTabButtonTemplate")
+    -- 创建一个名为MerchantFrameTab3的标签。为了兼容暴雪的API，命名只能是MerchantFrameTab3。
+    local tab3 = CreateFrame("Button", "MerchantFrameTab3", MerchantFrame, "CharacterFrameTabButtonTemplate")
+    -- 设置Tab数量为3
+    MerchantFrame.numTabs=3
     --设置文本
     MerchantFrameTab3:SetText("设置")
     -- 设置ID为3
     MerchantFrameTab3:SetID(3)
-    MerchantFrame.numTabs=3
     --设置锚点
     MerchantFrameTab3:SetPoint("LEFT" , MerchantFrameTab2 , "RIGHT" , -16 , 0)
-    PanelTemplates_DeselectTab(MerchantFrameTab3)
-    -- 测试用
-    -- SetTab1.flag = true
+    -- 绑定OnClick事件
     MerchantFrameTab3:SetScript('OnClick', function()
 
         --原本商品是12个（显示10个）show方法在这里
         --回购是进行重新排序，但回购里面没有show
+        --测试
+        -- SetTab:GetParent() -- 获取父窗口
+        -- MerchantFrame_Update() -- 有bug
+        -- MerchantFrame_UpdateFilterString()-- 更新过滤器
+        -- print(GetNumBuybackItems())--获取当前回购里面有多少物品
+        -- print(GetMerchantNumItems())--获取当前商人里面有多少卖在的物品
+        --取消选取，默认为取消
+        -- PanelTemplates_DeselectTab(MerchantFrameTab3)
+        --选取
+        -- PanelTemplates_SelectTab(MerchantFrameTab3)
+        -- SetTab:SetScript("OnEnter", function()
+        --     PanelTemplates_SelectTab(SetTab)
+        -- end)
+        -- SetTab:SetScript("OnLeave", function()
+        --     PanelTemplates_DeselectTab(SetTab)
+        -- end)
 
-        MerchantFrame.selectedTab=3
-        -- PanelTemplates_SelectTab(SetTab)
 
-        -- SetTab:OnSelect()
-        -- print(MerchantFrameTab2:GetID())
-        -- print(SetTab:GetName())
-        -- local left = SetTab.Left or _G[SetTab:GetName().."Left"];
-        -- local middle = SetTab.Middle or _G[SetTab:GetName().."Middle"];
-        -- local right = SetTab.Right or _G[SetTab:GetName().."Right"];
-        -- print(left)
-        -- print(middle)
-        -- print(right)
-        -- left:Hide()
-        -- right:Hide()
-        -- middle:Hide()
-        -- PanelTemplates_DeselectTab(SetTab)
-        -- SetTab:GetParent()
-        -- MerchantFrame_Update()
-        print(MerchantFrame.selectedTab)
-        PanelTemplates_SetTab(MerchantFrame, MerchantFrameTab3:GetID());
-        -- MerchantFrame_Update();
+        --选择为3号标签
+        PanelTemplates_SetTab(MerchantFrame, MerchantFrameTab3:GetID())--主要是为了MerchantFrame.selectedTab=3
+        -- MerchantFrame.selectedTab=3
 
+        -- 如果标签发生了切换
         if ( MerchantFrame.lastTab ~= MerchantFrame.selectedTab ) then
-            MerchantFrame_CloseStackSplitFrame();
-            MerchantFrame.lastTab = MerchantFrame.selectedTab;
+            MerchantFrame_CloseStackSplitFrame() -- 关闭物品堆叠购买框体
+            MerchantFrame.lastTab = MerchantFrame.selectedTab
         end
-        MerchantFrame_UpdateFilterString()
-        if ( MerchantFrame.selectedTab == 1 ) then
-            MerchantFrame_UpdateMerchantInfo();
-        elseif ( MerchantFrame.selectedTab == 3 ) then
-            MerchantNameText:SetText("ExtUI设置");--设置标题
-            MerchantFramePortrait:SetTexture("Interface\\MerchantFrame\\UI-BuyBack-Icon");--设置左上角图片
+        MerchantNameText:SetText("ExtUI设置")--设置标题
+        MerchantFramePortrait:SetTexture("Interface\\MerchantFrame\\UI-BuyBack-Icon")--设置左上角图片
 
-            -- Hide all merchant related items
-            buybackButton = _G["MerchantItem"..1];
-			SetItemButtonNameFrameVertexColor(buybackButton, 0.5, 0.5, 0.5);--高光
-			SetItemButtonSlotVertexColor(buybackButton,0.4, 0.4, 0.4);--高光
-            
-            -- ItemsPerSubpage=MerchantFrame.lastTab
-            for i=1, MERCHANT_ITEMS_PER_PAGE do
-                itemButton = _G["MerchantItem"..i];
-                _G["MerchantItem"..i.."Name"]:SetText("");
-                _G["MerchantItem"..i.."MoneyFrame"]:Hide();
-                itemButton:Hide();
-            end
-            print(GetNumBuybackItems())--获取当前回购里面有多少物品
-            print(GetMerchantNumItems())--获取当前商人里面有多少卖在的物品
-
-            MerchantFrameLootFilter:Hide();
-            MerchantExtraCurrencyBg:Hide()--金色边框
-            MerchantExtraCurrencyInset:Hide()--背景颜色
-            MerchantMoneyInset:Hide()
-            MerchantMoneyBg:Hide()
-            MerchantMoneyFrame:Hide()
-            MerchantToken1:Hide()
-
-            BuybackBG:Hide();
-            MerchantRepairAllButton:Hide();
-            MerchantRepairItemButton:Hide();
-            MerchantBuyBackItem:Hide();
-            MerchantPrevPageButton:Hide();
-            MerchantNextPageButton:Hide();
-            MerchantFrameBottomLeftBorder:Hide();
-            MerchantFrameBottomRightBorder:Hide();
-            MerchantRepairText:Hide();
-            MerchantPageText:Hide();
-            MerchantGuildBankRepairButton:Hide();
-        else
-            -- MerchantFrame_UpdateBuybackInfo();
+        -- Hide all merchant related items
+        buybackButton = _G["MerchantItem"..1]
+        SetItemButtonNameFrameVertexColor(buybackButton, 0.5, 0.5, 0.5)--高光
+        SetItemButtonSlotVertexColor(buybackButton,0.4, 0.4, 0.4)--高光
+        
+        -- ItemsPerSubpage=MerchantFrame.lastTab
+        for i=1, MERCHANT_ITEMS_PER_PAGE do
+            itemButton = _G["MerchantItem"..i]
+            _G["MerchantItem"..i.."Name"]:SetText("")
+            _G["MerchantItem"..i.."MoneyFrame"]:Hide()
+            itemButton:Hide()
         end
 
+        -- MerchantFrameLootFilter:Hide();
+        -- MerchantExtraCurrencyBg:Hide()--金色边框
+        -- MerchantExtraCurrencyInset:Hide()--背景颜色
+        -- MerchantMoneyInset:Hide()
+        -- MerchantMoneyBg:Hide()
+        -- MerchantMoneyFrame:Hide()
+        -- MerchantToken1:Hide()
 
-
-
-
+        BuybackBG:Hide()
+        MerchantRepairAllButton:Hide()
+        MerchantRepairItemButton:Hide()
+        MerchantBuyBackItem:Hide()
+        MerchantPrevPageButton:Hide()
+        MerchantNextPageButton:Hide()
+        MerchantFrameBottomLeftBorder:Hide()
+        MerchantFrameBottomRightBorder:Hide()
+        MerchantRepairText:Hide()
+        MerchantPageText:Hide()
+        MerchantGuildBankRepairButton:Hide()
     end)
-    -- print(_G[MerchantFrame:GetName().."Tab"..1]:GetName())
-    -- print(MerchantFrame.Tabs[1]:GetName())
-    -- print(MerchantFrame.Tabs[2]:GetName())
-    -- print(MerchantFrame.Tabs[3]:GetName())
-    -- SetTab:SetScript("OnEnter", function()
-    --     PanelTemplates_SelectTab(SetTab)
-    -- end)
-    -- SetTab:SetScript("OnLeave", function()
-    --     PanelTemplates_DeselectTab(SetTab)
-    -- end)
-
-
-    --取消选取
-    -- PanelTemplates_DeselectTab(SetTab)
-    --选取
-    -- PanelTemplates_SelectTab(SetTab)
-
-    -- 测试
-    -- hooksecurefunc("PanelTemplates_SetTab", function() print(frame.selectedTab ) end)
-
-
 
 
     -- currency insets
     -- 货币的背景
-    MerchantExtraCurrencyInset:ClearAllPoints();
-    MerchantExtraCurrencyInset:SetPoint("BOTTOMRIGHT", MerchantMoneyInset, "BOTTOMLEFT", 0, 0);
-    MerchantExtraCurrencyInset:SetPoint("TOPLEFT", MerchantMoneyInset, "TOPLEFT", -165, 0);
-    MerchantExtraCurrencyBg:ClearAllPoints();
-    MerchantExtraCurrencyBg:SetPoint("TOPLEFT", MerchantExtraCurrencyInset, "TOPLEFT", 3, -2);
-    MerchantExtraCurrencyBg:SetPoint("BOTTOMRIGHT", MerchantExtraCurrencyInset, "BOTTOMRIGHT", -3, 2);
+    MerchantExtraCurrencyInset:ClearAllPoints()
+    MerchantExtraCurrencyInset:SetPoint("BOTTOMRIGHT", MerchantMoneyInset, "BOTTOMLEFT", 0, 0)
+    MerchantExtraCurrencyInset:SetPoint("TOPLEFT", MerchantMoneyInset, "TOPLEFT", -165, 0)
+    MerchantExtraCurrencyBg:ClearAllPoints()
+    MerchantExtraCurrencyBg:SetPoint("TOPLEFT", MerchantExtraCurrencyInset, "TOPLEFT", 3, -2)
+    MerchantExtraCurrencyBg:SetPoint("BOTTOMRIGHT", MerchantExtraCurrencyInset, "BOTTOMRIGHT", -3, 2)
 
     -- move the next/previous page buttons
     -- 移动下一页/上一页按钮的位置
-    MerchantPrevPageButton:SetPoint("CENTER", MerchantFrame, "BOTTOM", 30, 55);
-    MerchantPageText:SetPoint("BOTTOM", MerchantFrame, "BOTTOM", 160, 50);
-    MerchantNextPageButton:SetPoint("CENTER", MerchantFrame, "BOTTOM", 290, 55);
+    MerchantPrevPageButton:SetPoint("CENTER", MerchantFrame, "BOTTOM", 30, 55)
+    MerchantPageText:SetPoint("BOTTOM", MerchantFrame, "BOTTOM", 160, 50)
+    MerchantNextPageButton:SetPoint("CENTER", MerchantFrame, "BOTTOM", 290, 55)
 
     -- alter the position of the buyback item slot on the merchant tab
     -- 更改当在商人标签时的回购槽的位置。
