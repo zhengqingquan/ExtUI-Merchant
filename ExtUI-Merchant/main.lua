@@ -3,19 +3,18 @@
 -- Author：Germbread
 --========================================
 
+
+--========================================
+-- variable
+-- 变量
+--========================================
 -- MERCHANT_ITEMS_PER_PAGE默认为10
 local ItemsPerSubpage = MERCHANT_ITEMS_PER_PAGE
 
 -- BUYBACK_ITEMS_PER_PAGE默认为12
 local BuyBackPerPage = BUYBACK_ITEMS_PER_PAGE
 
-
--- 修复暴雪的bug
--- 当你使用购买堆叠框体的时候切换标签会报错
--- 因为尝试调用StackSplitFrameCancel_Click()，但这个函数似乎被删除了。
-function StackSplitFrameCancel_Click()
-    StackSplitCancelButton_OnClick()
-end
+local Merchant_local = MERCHANTFRAME
 
 --========================================
 -- Rearrange item slot positions
@@ -62,7 +61,6 @@ end
 -- 重新排列回购物品槽的位置。
 --========================================
 local function ExtMerchant_UpdateBuyBackSlotPositions()
-
     -- 回购垂直间距为-30，水平间距为50，单位：像素
     local vertSpacing= -30 -- 垂直间距
     local horizSpacing = 50 -- 水平间距
@@ -97,11 +95,21 @@ end
 
 
 --========================================
+-- 如果有Token4，则重新排列Token4的位置
+--========================================
+local function ExtMerchant_changeToken4()
+    if(MerchantToken4)then
+        MerchantToken4:ClearAllPoints()
+        MerchantToken4:SetPoint("RIGHT", MerchantExtraCurrencyInset, "RIGHT", -12, -1)
+    end
+end
+
+
+--========================================
 -- Initial load
 -- 初始化加载
 --========================================
 local function ExtMerchant_OnLoad()
-
     -- 更改商品页面为20
     MERCHANT_ITEMS_PER_PAGE=20
 
@@ -117,7 +125,8 @@ local function ExtMerchant_OnLoad()
         end
     end
 
-
+    --[[
+    
     -- 创建一个名为MerchantFrameTab3的标签。为了兼容暴雪的API，命名只能是MerchantFrameTab3。
     local tab3 = CreateFrame("Button", "MerchantFrameTab3", MerchantFrame, "CharacterFrameTabButtonTemplate")
     -- 设置Tab数量为3
@@ -195,17 +204,26 @@ local function ExtMerchant_OnLoad()
         MerchantRepairText:Hide()
         MerchantPageText:Hide()
         MerchantGuildBankRepairButton:Hide()
+
     end)
 
+    --]]
 
-    -- currency insets
+    -- currency insets(background)
     -- 货币的背景
+    -- 右边货币地下的金色边框部分
+    MerchantMoneyBg:ClearAllPoints()
+    MerchantMoneyBg:SetPoint("TOPLEFT", MerchantMoneyInset, "TOPLEFT", 3, -2)
+    MerchantMoneyBg:SetPoint("BOTTOMRIGHT", MerchantMoneyInset, "BOTTOMRIGHT", -3, 2)
+    -- 左边货币底下的黑色背景
     MerchantExtraCurrencyInset:ClearAllPoints()
     MerchantExtraCurrencyInset:SetPoint("BOTTOMRIGHT", MerchantMoneyInset, "BOTTOMLEFT", 0, 0)
     MerchantExtraCurrencyInset:SetPoint("TOPLEFT", MerchantMoneyInset, "TOPLEFT", -165, 0)
+    -- 左边货币地下的金色边框部分
     MerchantExtraCurrencyBg:ClearAllPoints()
     MerchantExtraCurrencyBg:SetPoint("TOPLEFT", MerchantExtraCurrencyInset, "TOPLEFT", 3, -2)
     MerchantExtraCurrencyBg:SetPoint("BOTTOMRIGHT", MerchantExtraCurrencyInset, "BOTTOMRIGHT", -3, 2)
+
 
     -- move the next/previous page buttons
     -- 移动下一页/上一页按钮的位置
@@ -224,11 +242,14 @@ local function ExtMerchant_OnLoad()
     -- 下一页的钩子函数，同样适用于滚轮
     hooksecurefunc("MerchantNextPageButton_OnClick", ExtMerchant_UpdateSlotPositions)
 
-    -- 商品页面钩子函数，同样适用于滚轮。
+    -- 更新商品页面钩子函数，同样适用于滚轮。
     hooksecurefunc("MerchantFrame_UpdateMerchantInfo", ExtMerchant_UpdateSlotPositions)
-    
+
     -- 回购页面钩子函数，相对商品页面较为稳定，只有进入回购才触发。
     hooksecurefunc("MerchantFrame_UpdateBuybackInfo", ExtMerchant_UpdateBuyBackSlotPositions)
+
+    -- 如果有Token4，则重新排列Token4的位置
+    hooksecurefunc("MerchantFrame_UpdateMerchantInfo", ExtMerchant_changeToken4)
 end
 
 

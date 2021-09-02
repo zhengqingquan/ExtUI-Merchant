@@ -1,11 +1,16 @@
 ## Interface: 90100
-## Title: Extended Merchant UI（测试）
+## Title: ExtUI-Merchant
 ## Version: |cffffffffv0.0.1
+## Author: Germbread(Principal author)、Rampant Scallop
+
 ## Notes: Extends the merchant interface for easier browsing.
 ## Notes-zhCN: 用于扩展商人界面的独立插件。
-## Author: Germbread、Rampant Scallop
-## SavedVariables: EXTMERCHANT_DATA
-## X-Email: germbread@gmail.com
+
+# SavedVariables: EXTMERCHANT_DATA
+# SavedVariables: EXTUI_SET_DATA
+
+# X-Email: germbread@gmail.com
+
 
 # 待添加功能： 扩展好友界面UI
 # 设置选项卡
@@ -15,3 +20,7 @@
 
 # main
 main.lua
+
+# fix blizzard bug
+# 修复暴雪bug
+fix_blz.lua
