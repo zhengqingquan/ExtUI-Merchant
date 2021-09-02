@@ -1,3 +1,7 @@
+--========================================
+-- 之后扩展功能，暂时无用
+--========================================
+
 function SetTab1:UI_set_onclick(SetTab1)
     print(1)
     -- PanelTemplates_SetTab(MerchantFrame, SetTab1:GetID())
