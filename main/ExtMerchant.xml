@@ -3,7 +3,6 @@
     <!-- 加载lua文件 -->
     <Script file="ExtMerchant.lua"/>
 
-    
     <Frame name="ExtMerchant">
         <Scripts>
             <OnLoad>

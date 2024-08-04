@@ -1,9 +1,3 @@
---[[
-插件原为：Extended Vendor UI
-原作者为：Germbread
---]]
-
-
 -- 全局变量
 EXTMERCHANT = {
     ItemsPerSubpage = MERCHANT_ITEMS_PER_PAGE, --此处为10，表示左右两个页面为10。每个子页面的物品数量
@@ -11,6 +5,7 @@ EXTMERCHANT = {
 
 -- overrides default value of base ui, default functions will handle page display accordingly
 -- 覆盖原本商人UI显示物品数量的默认值，默认函数将相应地处理页面显示。
+-- HACK 这里会照成暴雪的全局变量污染。
 MERCHANT_ITEMS_PER_PAGE = 20;
 
 --========================================
@@ -35,6 +30,10 @@ function ExtMerchant_OnLoad(self)
     -- 回购页面钩子函数
     -- 回购页面的触发相对商品页面较为稳定，只有进入回购才触发。
     hooksecurefunc("MerchantFrame_UpdateBuybackInfo", ExtMerchant_UpdateBuyBackSlotPositions)
+
+    ExtMerchant_UpdateSellAllJunkButtonPositions()
+    ExtMerchant_UpdateBuyBackItemPositions()
+    hooksecurefunc("MerchantFrame_UpdateCurrencies", ExtMerchant_UpdateTokenPositions)
 end
 
 
@@ -128,6 +127,16 @@ function ExtMerchant_UpdateSlotPositions()
             end
         end
     end
+
+    -- 显示按钮。
+    local numMerchantItems = securecall("GetMerchantNumItems");
+    if ( numMerchantItems <= MERCHANT_ITEMS_PER_PAGE ) then
+        MerchantPageText:Show();
+        MerchantPrevPageButton:Show();
+        MerchantPrevPageButton:Disable();
+        MerchantNextPageButton:Show();
+        MerchantNextPageButton:Disable();
+    end
 end
 
 --========================================
@@ -166,3 +175,54 @@ function ExtMerchant_UpdateBuyBackSlotPositions()
         end
     end
 end
+
+--========================================
+-- 重新排列货币的位置
+--========================================
+function ExtMerchant_UpdateTokenPositions()
+    MerchantMoneyBg:SetPoint("TOPRIGHT", MerchantFrame, "BOTTOMRIGHT", -8, 25);
+    MerchantMoneyBg:SetPoint("BOTTOMLEFT", MerchantFrame, "BOTTOMRIGHT",-169, 6);
+
+    MerchantExtraCurrencyInset:ClearAllPoints();
+    MerchantExtraCurrencyInset:SetPoint("TOPLEFT", MerchantMoneyInset, "TOPLEFT", -171, 0);
+    MerchantExtraCurrencyInset:SetPoint("BOTTOMRIGHT", MerchantMoneyInset, "BOTTOMLEFT", 0, 0);
+
+    MerchantExtraCurrencyBg:ClearAllPoints();
+    MerchantExtraCurrencyBg:SetPoint("TOPLEFT", MerchantMoneyBg, "TOPLEFT", -171, 0);
+    MerchantExtraCurrencyBg:SetPoint("BOTTOMRIGHT", MerchantMoneyBg, "BOTTOMLEFT", -3, 0);
+
+    local currencies = { GetMerchantCurrencies() };
+    MerchantFrame.numCurrencies = #currencies;
+    for index = 1, MerchantFrame.numCurrencies do
+        local tokenButton = _G["MerchantToken"..index];
+        tokenButton:ClearAllPoints();
+        -- token display order is: 6 5 4 | 3 2 1
+        if ( index == 1 ) then
+            tokenButton:SetPoint("BOTTOMRIGHT", -16, 8);
+        elseif ( index == 4 ) then
+            tokenButton:SetPoint("RIGHT", _G["MerchantToken"..index - 1], "LEFT", -15, 0);
+        else
+            tokenButton:SetPoint("RIGHT", _G["MerchantToken"..index - 1], "LEFT", 0, 0);
+        end
+    end
+end
+
+--========================================
+-- 重新排列出售所有垃圾按钮的位置
+--========================================
+function ExtMerchant_UpdateSellAllJunkButtonPositions()
+    MerchantSellAllJunkButton:SetPoint("RIGHT", MerchantBuyBackItem, "LEFT", -13, 0);
+end
+
+--========================================
+-- 重新排列回购按钮的位置
+--========================================
+function ExtMerchant_UpdateBuyBackItemPositions()
+    MerchantBuyBackItem:SetPoint("TOPLEFT", MerchantItem10, "BOTTOMLEFT", 15, -20);
+
+    MerchantMoneyFrame:Hide();
+
+    MerchantExtraCurrencyBg:Hide();
+    MerchantExtraCurrencyInset:Hide();
+end
+
