@@ -31,8 +31,8 @@ function ExtMerchant_OnLoad(self)
     -- 回购页面的触发相对商品页面较为稳定，只有进入回购才触发。
     hooksecurefunc("MerchantFrame_UpdateBuybackInfo", ExtMerchant_UpdateBuyBackSlotPositions)
 
-    ExtMerchant_UpdateSellAllJunkButtonPositions()
     ExtMerchant_UpdateBuyBackItemPositions()
+    hooksecurefunc("MerchantFrame_UpdateRepairButtons", ExtMerchant_UpdateSellAllJunkButtonPositions)
     hooksecurefunc("MerchantFrame_UpdateCurrencies", ExtMerchant_UpdateTokenPositions)
 end
 
@@ -211,7 +211,9 @@ end
 -- 重新排列出售所有垃圾按钮的位置
 --========================================
 function ExtMerchant_UpdateSellAllJunkButtonPositions()
-    MerchantSellAllJunkButton:SetPoint("RIGHT", MerchantBuyBackItem, "LEFT", -13, 0);
+    if ( not securecall("CanMerchantRepair") ) then
+        MerchantSellAllJunkButton:SetPoint("RIGHT", MerchantBuyBackItem, "LEFT", -13, 0);
+    end
 end
 
 --========================================
