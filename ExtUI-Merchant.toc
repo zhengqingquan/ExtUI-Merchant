@@ -4,7 +4,8 @@
 ## Notes: Extends the merchant interface for easier browsing.
 ## Notes-zhCN: 用于扩展商人界面，方便浏览商品的独立插件。
 ## Author: 嚣张的扇贝
-## SpecialThanks: Germbread
+## X-SpecialThanks: Germbread
+## x-Github: https://github.com/zhengqingquan/ExtUI-Merchant
 ## SavedVariables: EXTMERCHANT_DATA
 
 # main

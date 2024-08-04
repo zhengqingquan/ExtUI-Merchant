@@ -6,6 +6,9 @@
 
 ![alt text](img/image2.png)
 
+点击进入[仓库地址](https://github.com/zhengqingquan/ExtUI-Merchant)，点击[下载最新版本](https://github.com/zhengqingquan/ExtUI-Merchant/releases)。
+
+
 ## 简介
 
 原版插件名为：Extended Vendor UI，作者为：Germbread。但作者已经很长时间没有更新了。
