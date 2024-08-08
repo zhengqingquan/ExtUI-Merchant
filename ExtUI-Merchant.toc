@@ -6,8 +6,6 @@
 ## Author: 嚣张的扇贝
 ## X-SpecialThanks: Germbread
 ## x-Github: https://github.com/zhengqingquan/ExtUI-Merchant
-## SavedVariables: EXTMERCHANT_DATA
 
 # main
 main\ExtMerchant.xml
-main\close.lua
