@@ -1,11 +1,13 @@
 ## Interface: 110000
 ## Title: ExtUI-Merchant
-## Version: v1.0.0
+## Version: v1.0.1
 ## Notes: Extends the merchant interface for easier browsing.
 ## Notes-zhCN: 用于扩展商人界面，方便浏览商品的独立插件。
 ## Author: 嚣张的扇贝
 ## X-SpecialThanks: Germbread
 ## x-Github: https://github.com/zhengqingquan/ExtUI-Merchant
+## x-CurseForge: https://www.curseforge.com/wow/addons/extui-merchant
+## x-legacy_curseforge: https://legacy.curseforge.com/wow/addons/extui-merchant
 
 # main
 main\ExtMerchant.xml
